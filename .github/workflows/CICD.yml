@@ -1,0 +1,31 @@
+name: "GCloud CI/CD"
+
+on:
+  push:
+    tags:
+      - "*-beta"
+  pull_request:
+    branches: ["main", "dev"]
+  workflow_dispatch:
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' || (startsWith(github.ref_name, 'v') && endsWith(github.ref_name, '-beta')))
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Configure GCP credentials
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 363.0.0"
+      - name: "Build and push Docker image to GCR"
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:${{ github.ref_name }} .
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:${{ github.ref_name }} .
