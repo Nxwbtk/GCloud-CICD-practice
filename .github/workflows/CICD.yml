@@ -28,4 +28,4 @@ jobs:
       - name: "Build and push Docker image to GCR"
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:${{ github.ref_name }} .
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:${{ github.ref_name }} .
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/myapp:${{ github.ref_name }}
